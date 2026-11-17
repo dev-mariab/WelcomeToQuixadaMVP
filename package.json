@@ -1,0 +1,40 @@
+{
+  "name": "welcome-to-quixada-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build:apk": "npx eas-cli build -p android --profile preview",
+    "api:tunnel": "powershell -ExecutionPolicy Bypass -File scripts/start-test-backend.ps1",
+    "apk:publish": "powershell -ExecutionPolicy Bypass -File scripts/start-test-backend.ps1 -BuildApk",
+    "api:render": "powershell -ExecutionPolicy Bypass -File scripts/use-render-api.ps1"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "~58.0.23",
+    "expo-asset": "~58.0.20",
+    "expo-build-properties": "~58.0.12",
+    "expo-constants": "~58.0.15",
+    "expo-file-system": "~58.0.13",
+    "expo-font": "~58.0.11",
+    "expo-image-picker": "~58.0.10",
+    "expo-linear-gradient": "~58.0.3",
+    "expo-splash-screen": "~58.0.13",
+    "expo-status-bar": "~58.0.4",
+    "leaflet": "^1.9.4",
+    "maplibre-gl": "^6.16.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.1",
+    "react-native-maps": "1.29.11",
+    "react-native-safe-area-context": "~5.11.1",
+    "react-native-web": "^0.21.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  }
+}

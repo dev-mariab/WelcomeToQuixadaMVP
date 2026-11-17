@@ -1,0 +1,25 @@
+databases:
+  - name: quixada-db
+    databaseName: quixada
+    user: quixada
+    plan: free
+
+services:
+  - type: web
+    name: welcome-to-quixada-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: quixada-db
+          property: connectionString
+      - key: PGSSLMODE
+        value: require
+      - key: CORS_ORIGIN
+        value: "*"

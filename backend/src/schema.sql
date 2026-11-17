@@ -1,0 +1,144 @@
+CREATE TABLE IF NOT EXISTS categories (
+  name TEXT PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS places (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  city TEXT NOT NULL DEFAULT 'Quixadá',
+  category TEXT NOT NULL DEFAULT 'Monólitos',
+  image TEXT,
+  rating NUMERIC(3, 1) NOT NULL DEFAULT 4.8,
+  distance TEXT NOT NULL DEFAULT '—',
+  description TEXT NOT NULL DEFAULT '',
+  tags JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS lodgings (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  city TEXT NOT NULL DEFAULT 'Quixadá',
+  kind TEXT NOT NULL DEFAULT 'hotel',
+  description TEXT NOT NULL DEFAULT '',
+  address TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  price_from NUMERIC(10, 2) NOT NULL DEFAULT 0,
+  image TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS restaurants (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  city TEXT NOT NULL DEFAULT 'Quixadá',
+  kind TEXT NOT NULL DEFAULT 'Culinária regional',
+  description TEXT NOT NULL DEFAULT '',
+  rating NUMERIC(3, 1) NOT NULL DEFAULT 4.8,
+  phone TEXT NOT NULL DEFAULT '',
+  image TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS events (
+  id TEXT PRIMARY KEY,
+  day TEXT NOT NULL,
+  month TEXT NOT NULL,
+  year TEXT NOT NULL DEFAULT '2026',
+  title TEXT NOT NULL,
+  city TEXT NOT NULL DEFAULT 'Quixadá',
+  place TEXT NOT NULL DEFAULT '',
+  category TEXT NOT NULL DEFAULT 'Evento',
+  time TEXT NOT NULL DEFAULT '19:00',
+  color TEXT NOT NULL DEFAULT 'green',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE events ADD COLUMN IF NOT EXISTS year TEXT NOT NULL DEFAULT '2026';
+
+CREATE TABLE IF NOT EXISTS guides (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  initials TEXT NOT NULL DEFAULT '',
+  role TEXT NOT NULL DEFAULT 'Guia local',
+  specialties JSONB NOT NULL DEFAULT '[]'::jsonb,
+  rating NUMERIC(3, 1) NOT NULL DEFAULT 4.8,
+  reviews INTEGER NOT NULL DEFAULT 0,
+  cadastur TEXT NOT NULL DEFAULT '',
+  experience TEXT NOT NULL DEFAULT '',
+  color TEXT NOT NULL DEFAULT 'blue',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE guides ADD COLUMN IF NOT EXISTS city TEXT NOT NULL DEFAULT '';
+ALTER TABLE guides ADD COLUMN IF NOT EXISTS phone TEXT NOT NULL DEFAULT '';
+ALTER TABLE guides ADD COLUMN IF NOT EXISTS image TEXT;
+
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  password_hash TEXT NOT NULL,
+  phone TEXT NOT NULL DEFAULT '',
+  gender TEXT NOT NULL DEFAULT '',
+  age INTEGER,
+  city TEXT NOT NULL DEFAULT '',
+  role TEXT NOT NULL DEFAULT 'visitor',
+  profession TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users (LOWER(email));
+
+CREATE TABLE IF NOT EXISTS trails (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  place TEXT NOT NULL DEFAULT '',
+  city TEXT NOT NULL DEFAULT 'Quixadá',
+  level TEXT NOT NULL DEFAULT 'Fácil',
+  distance TEXT NOT NULL DEFAULT '—',
+  time TEXT NOT NULL DEFAULT '—',
+  gain TEXT NOT NULL DEFAULT '—',
+  image TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE trails ADD COLUMN IF NOT EXISTS latitude NUMERIC(9, 6);
+ALTER TABLE trails ADD COLUMN IF NOT EXISTS longitude NUMERIC(9, 6);
+
+CREATE TABLE IF NOT EXISTS reviews (
+  id TEXT PRIMARY KEY,
+  place_id TEXT NOT NULL,
+  user_name TEXT NOT NULL DEFAULT 'Visitante',
+  rating INTEGER NOT NULL DEFAULT 5,
+  text TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS support_messages (
+  id TEXT PRIMARY KEY,
+  author TEXT NOT NULL DEFAULT 'Visitante',
+  city TEXT NOT NULL DEFAULT '',
+  text TEXT NOT NULL DEFAULT '',
+  rating INTEGER NOT NULL DEFAULT 5,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS city TEXT NOT NULL DEFAULT '';
+
+CREATE TABLE IF NOT EXISTS accesses (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'Editor',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS favorites (
+  user_email TEXT NOT NULL,
+  place_id TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (user_email, place_id)
+);
+
+CREATE INDEX IF NOT EXISTS reviews_place_id_idx ON reviews (place_id);
+CREATE INDEX IF NOT EXISTS favorites_user_email_idx ON favorites (user_email);

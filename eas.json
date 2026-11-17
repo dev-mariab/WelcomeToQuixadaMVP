@@ -1,0 +1,22 @@
+{
+    "build":  {
+                  "preview":  {
+                                  "android":  {
+                                                  "buildType":  "apk"
+                                              },
+                                  "env":  {
+                                              "EXPO_PUBLIC_API_URL":  "https://downloaded-provincial-busy-excerpt.trycloudflare.com/api"
+                                          }
+                              },
+                  "production":  {
+                                     "env":  {
+                                                 "EXPO_PUBLIC_API_URL":  "https://downloaded-provincial-busy-excerpt.trycloudflare.com/api"
+                                             }
+                                 }
+              },
+    "submit":  {
+                   "production":  {
+
+                                  }
+               }
+}

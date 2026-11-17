@@ -1,0 +1,67 @@
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+
+const ICONS = {
+  ArrowLeft: ['ion', 'arrow-back'],
+  ArrowLeftRight: ['ion', 'swap-horizontal'],
+  Bell: ['ion', 'notifications-outline'],
+  Bookmark: ['ion', 'bookmark-outline'],
+  BedDouble: ['ion', 'bed-outline'],
+  Building2: ['ion', 'business-outline'],
+  CalendarDays: ['ion', 'calendar-outline'],
+  Camera: ['ion', 'camera-outline'],
+  Check: ['ion', 'checkmark'],
+  ChevronDown: ['ion', 'chevron-down'],
+  ChevronRight: ['ion', 'chevron-forward'],
+  ChevronLeft: ['ion', 'chevron-back'],
+  Circle: ['ion', 'ellipse'],
+  Clock3: ['ion', 'time-outline'],
+  CloudSun: ['ion', 'partly-sunny-outline'],
+  Compass: ['ion', 'compass-outline'],
+  Heart: ['ion', 'heart-outline'],
+  HeartFilled: ['ion', 'heart'],
+  Home: ['ion', 'home-outline'],
+  HomeFilled: ['ion', 'home'],
+  ImagePlus: ['ion', 'image-outline'],
+  Languages: ['ion', 'language-outline'],
+  LayoutDashboard: ['ion', 'grid-outline'],
+  Landmark: ['mci', 'bank'],
+  Church: ['mci', 'church'],
+  Leaf: ['ion', 'leaf-outline'],
+  LogOut: ['ion', 'log-out-outline'],
+  Map: ['ion', 'map-outline'],
+  MapPin: ['ion', 'location-outline'],
+  MessageCircle: ['ion', 'chatbubble-outline'],
+  MessagesSquare: ['ion', 'chatbubbles-outline'],
+  Moon: ['ion', 'moon-outline'],
+  Mountain: ['mci', 'terrain'],
+  Navigation: ['ion', 'navigate'],
+  Pencil: ['ion', 'pencil'],
+  Phone: ['ion', 'call-outline'],
+  Plus: ['ion', 'add'],
+  Route: ['mci', 'map-marker-path'],
+  Search: ['ion', 'search'],
+  Send: ['ion', 'send'],
+  ShieldCheck: ['ion', 'shield-checkmark-outline'],
+  Share2: ['ion', 'share-social-outline'],
+  Sparkles: ['ion', 'sparkles-outline'],
+  Star: ['ion', 'star-outline'],
+  StarFilled: ['ion', 'star'],
+  Sun: ['ion', 'sunny-outline'],
+  Tag: ['ion', 'pricetag-outline'],
+  ThermometerSun: ['ion', 'thermometer-outline'],
+  TicketCheck: ['ion', 'ticket-outline'],
+  Trash2: ['ion', 'trash-outline'],
+  UserRound: ['ion', 'person-outline'],
+  Users: ['ion', 'people-outline'],
+  Utensils: ['ion', 'restaurant-outline'],
+  Wind: ['mci', 'weather-windy'],
+  X: ['ion', 'close'],
+}
+
+export default function Icon({ name, size = 20, color = '#30130f', filled = false, style }) {
+  const key = filled && ICONS[`${name}Filled`] ? `${name}Filled` : name
+  const mapping = ICONS[key] ?? ICONS[name] ?? ['ion', 'ellipse-outline']
+  const [set, icon] = mapping
+  const Component = set === 'mci' ? MaterialCommunityIcons : Ionicons
+  return <Component name={icon} size={size} color={color} style={style} />
+}
