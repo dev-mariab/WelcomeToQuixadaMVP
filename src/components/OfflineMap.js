@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import {
+  Dimensions,
+  Image,
+  PanResponder,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
 import * as FileSystem from 'expo-file-system/legacy'
 import { useTheme } from '../theme'
 import { cityCoordinates } from '../data'
@@ -10,6 +19,13 @@ const TILE_SIZE = 256
 const TILE_CACHE_DIR = `${FileSystem.documentDirectory || ''}map-tiles/`
 const COMPLETE_MARKER = `${TILE_CACHE_DIR}region-complete.json`
 const TILE_URL = (z, x, y) => `https://tile.openstreetmap.org/${z}/${x}/${y}.png`
+
+function touchDistance(touches) {
+  const first = touches?.[0]
+  const second = touches?.[1]
+  if (!first || !second) return 0
+  return Math.hypot(first.pageX - second.pageX, first.pageY - second.pageY)
+}
 
 const REGION = {
   west: -39.4,
@@ -130,6 +146,9 @@ export default function OfflineMap({ city, focus, onMapDownloaded, onToast }) {
   const theme = useTheme()
   const mountedRef = useRef(true)
   const scrollRef = useRef(null)
+  const zoomScaleRef = useRef(1)
+  const pinchStartRef = useRef(null)
+  const applyZoomRef = useRef(null)
   const [installed, setInstalled] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -326,50 +345,94 @@ export default function OfflineMap({ city, focus, onMapDownloaded, onToast }) {
     }
   }
 
-  function centerMap() {
+  function centerMap(scale = zoomScale, animated = true) {
     if (!scrollRef.current) return
     scrollRef.current.scrollTo({
-      x: Math.max(0, mapLayout.centerX - mapLayout.viewportWidth / 2),
-      y: Math.max(0, mapLayout.centerY - 320 / 2),
-      animated: false,
+      x: Math.max(0, mapLayout.centerX * scale - mapLayout.viewportWidth / 2),
+      y: Math.max(0, mapLayout.centerY * scale - 320 / 2),
+      animated,
     })
   }
 
-  function changeZoom(nextScale) {
-    const scale = Math.min(4, Math.max(1, Math.round(nextScale * 10) / 10))
+  function applyZoom(nextScale, animated = true) {
+    const scale = Math.min(4, Math.max(1, Math.round(nextScale * 100) / 100))
+    zoomScaleRef.current = scale
     setZoomScale(scale)
-    if (scrollRef.current) scrollRef.current.zoomTo(scale, true)
+    setTimeout(() => centerMap(scale, animated), 30)
   }
 
-  function handleZoom(event) {
-    const scale = event.nativeEvent.zoomScale
-    if (Number.isFinite(scale) && Math.abs(scale - zoomScale) > 0.05) {
-      setZoomScale(Math.round(scale * 10) / 10)
-    }
+  function changeZoom(nextScale) {
+    applyZoom(nextScale)
   }
+
+  applyZoomRef.current = applyZoom
+
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponderCapture: (event) =>
+          (event.nativeEvent.touches?.length || 0) >= 2,
+        onMoveShouldSetPanResponderCapture: (event) =>
+          (event.nativeEvent.touches?.length || 0) >= 2,
+        onStartShouldSetPanResponder: (event) => (event.nativeEvent.touches?.length || 0) >= 2,
+        onMoveShouldSetPanResponder: (event) => (event.nativeEvent.touches?.length || 0) >= 2,
+        onPanResponderGrant: (event) => {
+          const touches = event.nativeEvent.touches
+          if (!touches || touches.length < 2) return
+          pinchStartRef.current = {
+            distance: touchDistance(touches),
+            scale: zoomScaleRef.current,
+          }
+        },
+        onPanResponderMove: (event) => {
+          const touches = event.nativeEvent.touches
+          const start = pinchStartRef.current
+          if (!start || !touches || touches.length < 2 || !start.distance) return
+          applyZoomRef.current(start.scale * (touchDistance(touches) / start.distance), false)
+        },
+        onPanResponderRelease: () => {
+          pinchStartRef.current = null
+        },
+        onPanResponderTerminate: () => {
+          pinchStartRef.current = null
+        },
+        onPanResponderTerminationRequest: () => false,
+      }),
+    [],
+  )
 
   return (
     <View style={[styles.wrap, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-      <View style={styles.mapFrame}>
+      <View style={styles.mapFrame} {...panResponder.panHandlers}>
         <ScrollView
           key={`${city}-${focus?.name || 'all'}-${focus?.latitude || ''}`}
           ref={scrollRef}
           style={styles.map}
-          contentContainerStyle={{ width: mapLayout.width, height: mapLayout.height }}
+          contentContainerStyle={{
+            width: mapLayout.width * zoomScale,
+            height: mapLayout.height * zoomScale,
+          }}
           contentOffset={{
             x: Math.max(0, mapLayout.centerX - mapLayout.viewportWidth / 2),
             y: Math.max(0, mapLayout.centerY - 320 / 2),
           }}
-          onContentSizeChange={centerMap}
-          onScroll={handleZoom}
-          scrollEventThrottle={100}
+          onContentSizeChange={() => centerMap()}
           minimumZoomScale={1}
-          maximumZoomScale={4}
+          maximumZoomScale={1}
           bounces={false}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
         >
-          <View style={{ width: mapLayout.width, height: mapLayout.height }}>
+          <View
+            style={{
+              position: 'absolute',
+              left: ((zoomScale - 1) * mapLayout.width) / 2,
+              top: ((zoomScale - 1) * mapLayout.height) / 2,
+              width: mapLayout.width,
+              height: mapLayout.height,
+              transform: [{ scale: zoomScale }],
+            }}
+          >
             {mapLayout.tiles.map((tile) => (
               <Image
                 key={`${tile.z}-${tile.x}-${tile.y}`}
