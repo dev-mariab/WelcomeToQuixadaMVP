@@ -5,12 +5,12 @@
                                                   "buildType":  "apk"
                                               },
                                   "env":  {
-                                              "EXPO_PUBLIC_API_URL":  "https://downloaded-provincial-busy-excerpt.trycloudflare.com/api"
+                                              "EXPO_PUBLIC_API_URL":  "https://welcome-to-quixada-api.onrender.com/api"
                                           }
                               },
                   "production":  {
                                      "env":  {
-                                                 "EXPO_PUBLIC_API_URL":  "https://downloaded-provincial-busy-excerpt.trycloudflare.com/api"
+                                                 "EXPO_PUBLIC_API_URL":  "https://welcome-to-quixada-api.onrender.com/api"
                                              }
                                  }
               },
